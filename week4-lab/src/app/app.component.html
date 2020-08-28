@@ -12,9 +12,12 @@
         <li class="active"><a class="nav-link" routerLink="/">Home</a></li>
         <li> <a class="nav-link" routerLink="/login">Login</a></li>
         <li><a class="nav-link" routerLink="/account">Account</a></li>
+        <li><a class="nav-link" routerLink="/profile">Profile</a></li>
       </ul>
     </div>
+    <button (click)="logout()" class="btn btn-info btn-md">Logout</button>
   </nav>
+  
 </div>
 <div class="container">
   <router-outlet></router-outlet>

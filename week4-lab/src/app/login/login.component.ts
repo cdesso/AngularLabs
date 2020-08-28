@@ -1,7 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { NgModel } from '@angular/forms';
-import { AppComponent } from '../app.component';
 import { Router } from '@angular/router';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+const httpOptions = {
+  headers: new HttpHeaders({'Content-Type': 'application/json'})
+};
+//URL to allow server access
+const BACKEND_URL = 'http://localhost:3000';
 
 @Component({
   selector: 'app-login',
@@ -12,26 +16,40 @@ export class LoginComponent implements OnInit {
   username = "";
   password = "";
   error = "";
-  users = [
-    {'email': 'casper@mail.com', 'pwd': 'abc123'}, 
-    {'email': 'john@mail.com', 'pwd': 'abc123'}, 
-    {'email': 'david@mail.com', 'pwd': 'abc123'}];
-  constructor(private router: Router) { }
+  constructor(private router: Router, private httpClient: HttpClient) { }
 
   ngOnInit(): void {
+    // if the user is already logged in, alert and route to account page.
+    if (sessionStorage.getItem('id') != null){
+      alert('You are already logged in');
+      this.router.navigateByUrl('/account');
+    }
   }
 
   submit(){
-    for (let i=0; i<this.users.length; i++){
-      if (this.username == this.users[i].email && this.password == this.users[i].pwd){
+    // send user variables to server and subscribe to the data returned. 
+    // if data is returned with a valid value of true, reset error message, 
+    // put data in session storage and route to account page.
+    // else, prompt incorrect inputs and reset input fields.
+
+    let user = {username: this.username, pwd: this.password};
+    this.httpClient.post(BACKEND_URL + '/api/auth', user, httpOptions).subscribe((data:any)=>{
+      if (data.valid){
         this.error = ""
+        sessionStorage.setItem('id', data.id);
+        sessionStorage.setItem('username', data.username);
+        sessionStorage.setItem('birthdate', data.birthdate);
+        sessionStorage.setItem('age', data.age.toString());
+        sessionStorage.setItem('userlogin', data.valid.toString());
+        sessionStorage.setItem('email', data.email);
+
         this.router.navigateByUrl('/account');
       }
-      else{
+      else {
         this.error = "Invalid username or password"
         this.username = "";
         this.password = "";
       }
-  }
+    });
   }
 }
